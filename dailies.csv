@@ -1,4 +1,5 @@
-Daily,type,shortcut,complete,date,alert,time
-Duolingo,website,https://www.duolingo.com/learn,uncompleted,1,false,00:00
-Sudoku,website,https://sudoku.com/challenges,completed,1,false,00:00
-Genshin Impact,application,M:\hoyo\Genshin Impact game\GenshinImpact.exe,uncompleted,1,false,00:00
+Daily,type,shortcut,date
+Duolingo,website,https://www.duolingo.com/learn,1
+Sudoku,website,https://sudoku.com/challenges,2024-02-14
+100 Push ups,None,Daily Shortcut,1
+5k walk,None,Daily Shortcut,1

@@ -5,6 +5,7 @@ from PIL import Image
 import pandas as pd
 import os
 import webbrowser
+from datetime import date
 
 
 def load_data():
@@ -19,7 +20,7 @@ def save_data():
     pass
 
 class MyApp(tk.Tk):
-    data = pd.DataFrame()
+    data = pd.DataFrame(columns=["Daily","type","shortcut","date"])
 
     def __init__(self):
         super().__init__()
@@ -27,7 +28,7 @@ class MyApp(tk.Tk):
 
         self.load_data()
         self.title("Daily app manager")
-        self.geometry('500x750')
+        self.geometry('500x725')
         self.protocol('WM_DELETE_WINDOW', self.minimize_to_tray)
 
         self.tasks = ttk.Treeview(columns=("Daily"),show='headings',height=25)
@@ -36,7 +37,10 @@ class MyApp(tk.Tk):
         self.tasks.grid(row=0, column=0, columnspan=3, padx=(10,10), pady=(10,10))
 
         for index,row in self.data.iterrows():
-            self.tasks.insert('',"end",values=(row["Daily"],),tags=(row["complete"]))
+            if str(row["date"]) == str(date.today()):
+                self.tasks.insert('',"end",values=(row["Daily"],),tags=("completed"))
+            else:
+                self.tasks.insert('',"end",values=(row["Daily"],),tags=("uncompleted"))
 
         self.tasks.tag_configure("completed", background="green")
         self.tasks.tag_configure("uncompleted", background="red")
@@ -57,10 +61,10 @@ class MyApp(tk.Tk):
         new_daily_frame.grid(row=2, column=0, columnspan=3,sticky="ewns",padx=(10,10))
 
         new_daily_name_label = tk.Label(new_daily_frame,text="Name",width=20)
-        new_daily_name_entry = tk.Entry(new_daily_frame,width=52,selectborderwidth=10)
+        self.new_daily_name_entry = tk.Entry(new_daily_frame,width=52,selectborderwidth=10)
 
         new_daily_name_label.grid(row=0,column=0)
-        new_daily_name_entry.grid(row=0,column=1,columnspan=2)
+        self.new_daily_name_entry.grid(row=0,column=1,columnspan=2)
 
         new_daily_type = tk.Menubutton(new_daily_frame,text="Daily Type", relief=tk.RAISED,width=20)
         new_daily_type.grid(row=1,column=0)
@@ -68,7 +72,7 @@ class MyApp(tk.Tk):
         new_daily_type.menu = tk.Menu(new_daily_type, tearoff=0)
         new_daily_type["menu"] = new_daily_type.menu
 
-        self.typeVar = tk.IntVar(self,0)
+        self.typeVar = tk.StringVar(self,"None")
 
         new_daily_type.menu.add_radiobutton(label="None",variable=self.typeVar)
         new_daily_type.menu.add_radiobutton(label="Website",variable=self.typeVar)
@@ -80,36 +84,42 @@ class MyApp(tk.Tk):
         new_daily_shortcut = tk.Entry(new_daily_frame,width=52,selectborderwidth=10,textvariable=self.shorcutVar)
         new_daily_shortcut.grid(row=1,column=1,columnspan=2)
 
-        self.alertVar = tk.IntVar()
-        new_daily_alert_checkbox = tk.Checkbutton(new_daily_frame,text="Alert",variable=self.alertVar)
-        new_daily_alert_checkbox.grid(row=2,column=0)
-
-        alert_time_frame = tk.LabelFrame(new_daily_frame,text="Alert Time",width=100,height=40)
-        alert_time_frame.grid(row=2,column=1,sticky="w",pady=(10,10),padx=(10,10))
-
-        alert_time_hour = tk.Spinbox(alert_time_frame, from_=0,to=23,width=2)
-        alert_time_label = tk.Label(alert_time_frame,text=":",width=1)
-        alert_time_min = tk.Spinbox(alert_time_frame, from_=0,to=59,width=2)
-
-        alert_time_hour.grid(row=0,column=0)
-        alert_time_label.grid(row=0,column=1)
-        alert_time_min.grid(row=0,column=2)
 
         create_button = tk.Button(new_daily_frame,text="Create New Daily",command=self.create_new_daily,width=18)
-        create_button.grid(row=2,column=2)
+        create_button.grid(row=2,column=0,columnspan=3, padx=(10,10),pady=(10,10))
 
     def create_new_daily(self):
-        print
+        #new_daily = {"Daily":self.new_daily_name_entry.get(),"type":self.typeVar.get(),"shortcut":self.shorcutVar.get(),"date":1,"alert":self.alertVar.get(),"time":f"{self.alert_time_hour.get()}:{self.alert_time_min.get()}"}
+        self.data.loc[len(self.data), ["Daily","type","shortcut","date"]] = self.new_daily_name_entry.get(),self.typeVar.get(),self.shorcutVar.get(),1
+        self.save_data()
+        self.reload_dailies()
+
+
 
     def selected_item(self):
         item = self.tasks.focus()
         return self.tasks.item(item)
     
     def delete_selected(self):
-        print(self.selected_item()," delete")
+        daily = self.selected_item()["values"][0]
+        daily_index = self.data.loc[self.data["Daily"] == daily].index[0]
+        self.data = self.data.drop(self.data.index[[daily_index]])
+        self.save_data()
+        self.reload_dailies()
+
+
 
     def complete_selected(self):
-        print("complete")
+        daily = self.selected_item()["values"][0]
+        daily_index = self.data.loc[self.data["Daily"] == daily].index[0]
+        self.data.loc[daily_index, "date"] = date.today()
+        self.save_data()
+        self.reload_dailies()
+
+
+
+
+
 
     def open_selected(self):
         task = self.selected_item()["values"][0]
@@ -121,7 +131,14 @@ class MyApp(tk.Tk):
         else:
             self.data.to_csv("dailies.csv", sep=',', index=False, encoding="utf-8")
 
+    def reload_dailies(self):
+        self.tasks.delete(*self.tasks.get_children())
 
+        for index,row in self.data.iterrows():
+            if str(row["date"]) == str(date.today()):
+                self.tasks.insert('',"end",values=(row["Daily"],),tags=("completed"))
+            else:
+                self.tasks.insert('',"end",values=(row["Daily"],),tags=("uncompleted"))
 
     def save_data(self):
         self.data.to_csv("dailies.csv", sep=',', index=False, encoding="utf-8")
@@ -129,7 +146,7 @@ class MyApp(tk.Tk):
     def create_menu(self):
         out = []
         for index,row in self.data.iterrows():
-            if row["complete"] == "uncompleted":
+            if str(row["date"]) != str(date.today()):
                 out.append(pystray.MenuItem(row["Daily"],lambda _, daily=row["Daily"]: self.open_daily(daily),enabled=True))
             else:
                 out.append(pystray.MenuItem(row["Daily"],lambda _, daily=row["Daily"]: self.open_daily(daily),enabled=False))
@@ -166,7 +183,12 @@ class MyApp(tk.Tk):
     def run_daily(self,option):
         print(option)
 
+    def set_alerts(self):
+        pass
+
 if __name__ == "__main__":
     app = MyApp()
     app.resizable(False,False)
     app.mainloop()
+
+
