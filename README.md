@@ -25,7 +25,7 @@ A tool with an user interface that minimizes into the system tray when closed. I
 ### Main Window
 The user will see a window where they can see all of their daily tasks. Here they can interact with their daily tasks as well as create new daily tasks.
 
-![input](https://github.com/JurajBorkaCode/World-data-viewer/blob/main/main%20window.PNG)
+![Main Window](https://github.com/JurajBorkaCode/Daily-Tasks/blob/main/main%20window.PNG)
 
 The user can interact by:
 * Opening a daily task - This either opens a website or an application based on the users input when creating the daily task
@@ -36,14 +36,14 @@ The user can interact by:
 
 * A SVG map will be generated and a list of unsupported countries will be listed.
 
-![output](https://github.com/JurajBorkaCode/World-data-viewer/blob/main/new%20daily.PNG)
+![New Daily Task](https://github.com/JurajBorkaCode/Daily-Tasks/blob/main/new%20daily.PNG)
 
 The user can create new daily tasks by filling in the fields. They can select what type of shortcut to use by clicking the daily type dropdown menu and the inputting the shortcut into the daily shortcut input box. This allows users to quickly access the daily tasks.
 
 ### System Tray
 When the user closes the main window, the app will be minimized into the system tray and be given a dynamic menu.
 
-![output](https://github.com/JurajBorkaCode/World-data-viewer/blob/main/system%20tray.PNG)
+![System Tray Menu](https://github.com/JurajBorkaCode/Daily-Tasks/blob/main/system%20tray.PNG)
 
 The user will be able to see all of their daily tasks from the menu. The tasks will be grayed out if they have been completed. If they have not been completed and they have a shortcut, the user will be able to click on them to open the daily task.
 
