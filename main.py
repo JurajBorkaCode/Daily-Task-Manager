@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import webbrowser
 from datetime import date
+import sys
 
 
 def load_data():
@@ -165,11 +166,29 @@ class MyApp(tk.Tk):
             os.startfile(task_to_open.iloc[0]["shortcut"])
 
 
+    def create_icon(self):
+        try:
+            count = self.data["date"].value_counts()[str(date.today())]
+        except:
+            count = 0
+        data_size = len(self.data.index)
+        if count != 0:
+            image1_size = int((count/data_size)*64)
+        else:
+            image1_size = 0
+        image1 = Image.new('RGB', (image1_size, 64), (0, 255, 0))
+        image2 = Image.new('RGB', (64-image1_size, 64), (255, 0, 0))
+        image = Image.new('RGB',(64, 64), (250,250,250))
+        image.paste(image1,(0,0))
+        image.paste(image2,(image1.size[0],0))
+        return image
+
     def minimize_to_tray(self):
         self.withdraw()
-        image = Image.open("app.ico")
+        image = self.create_icon()
         menu = self.create_menu()
         icon = pystray.Icon("name", image, "My App", menu)
+        icon.icon = image
         icon.run()
 
     def quit_window(self, icon):
